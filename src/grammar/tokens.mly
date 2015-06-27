@@ -1,4 +1,8 @@
 
+(* 0. Context tokens *)
+%token INDENT
+%token DEDENT
+
 (* 1. values and names *)
 %token <bool>   BOOL
 %token <int>    INT
@@ -31,15 +35,14 @@
 %token OPBI_SHIFTL
 %token OPBI_SHIFTR
 (* 3.3 arithmetic *)
-%token OPAR_NEG
 %token OPAR_PLUS
-%token OPAR_MINUS
+%token OPAR_MINUS  (* don't forget the unary minus !*)
 %token OPAR_MULTIPLY
 %token OPAR_DIVIDE
 %token OPAR_DIVIDE_INTERGER (* 3 // 2 is 1 *)
 %token OPAR_MODULO (* standard modulo *)
 %token OPAR_EXPONENT (* 2 ** 3 is 2 ^ 3*)
-%token OPAR_MODULO_EMULATE (* -7 %% 5 is 3 *)
+%token OPAR_MODULO_POSITIVE (* -7 %% 5 is 3 *)
 (* 3.4 function *)
 %token OPF_THIN_ROCKET (* -> *)
 %token OPF_FAT_ROCKET  (* => *)
@@ -47,7 +50,15 @@
 %token OPAS_ASSING     (* =  *)
 %token OPAS_ASSING_OR  (* |= *)
 %token OPAS_ASSING_AND (* &= *)
-%token OPAS_ASSIGN_IF  (* ?= *)
+%token OPAS_ASSING_IF  (* ?= *)
+%token OPAS_ASSING_PLUS (* += *)
+%token OPAS_ASSING_MINUS (* -= *)
+%token OPAS_ASSING_MULTIPLY
+%token OPAS_ASSING_DIVIDE
+%token OPAS_ASSING_DIVIDE_INTEGER
+%token OPAS_ASSING_MODULO
+%token OPAS_ASSING_MODULO_POSITIVE
+%token OPAS_ASSING_EXPONENT
 (* 3.6 exist  *)
 %token OP_EXISTS (* ? *)
 %token <string> OP_EXIST_FIELD (* a.b? *)
@@ -64,7 +75,6 @@
 %token WHILE
 %token UNTIL
 %token FOR
-%token FOR_WHEN
 %token FOR_IN
 %token FOR_OF
 %token FOR_DO
