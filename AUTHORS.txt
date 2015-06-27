@@ -1,0 +1,8 @@
+(* OASIS_START *)
+(* DO NOT EDIT (digest: 1f547e84553da4891dbe8ddd500a0ee8) *)
+
+Authors of OCoffee:
+
+* Thomas 'mackwic' Wickham
+
+(* OASIS_STOP *)

@@ -1,0 +1,17 @@
+OASISFormat: 0.4
+Name:        OCoffee
+Version:     0.1.0
+Synopsis:    A modern compiler for coffee-script
+Authors:     Thomas 'mackwic' Wickham
+License:     GPL-3
+Plugins:     StdFiles (0.4), DevFiles (0.4)
+
+SourceRepository git
+  Type:     git
+  Location: git://git@github.com:mackwic/OCoffee.git
+  
+Executable ocoffee
+  Path:       src/
+  BuildTools: ocamlbuild
+  MainIs:     main.ml
+  
