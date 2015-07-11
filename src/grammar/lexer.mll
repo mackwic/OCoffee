@@ -4,8 +4,23 @@
   open Parser
 }
 
+let t_white   = ['\t', ' ']
+let t_eol     = ['\n', '\r', "\r\n"]
+let t_digit   = ['0'-'9']
+let t_int     = '-'?t_digit+
+let t_float   = '-'?t_digit+'.'t_digit+
+let t_bool    = ("true"|"false")
+let t_escape  =  '\\' ['b' 't' 'n' 'f' 'r' '"' '/' '\\']
+let t_alpha   = ['A'-'Z' 'a'-'z']
+let t_alphanum= t_alpha | t_digit
+let t_unicode = "\u" t_alphanum t_alphanum t_alphanum t_alphanum
+let t_ident   = ['_' t_alpha]['_' t_alphanum]
+
 rule token = parse
 | eof { EOF }
+| t_int as value { INT(int_of_string value) }
+| t_float as value { FLOAT(float_of_string value) }
+| t_bool as value { BOOL(bool_of_string value) }
 (* punctuation *)
 | ';' { SEMICOLON}
 | "::" { DOUBLE_COMMA }
@@ -17,6 +32,7 @@ rule token = parse
 | '}' { R_BRACE }
 | '[' { L_BRACK }
 | ']' { R_BRACK }
+| '@' { AT }
 (* keywords *)
 | "yield" { YIELD }
 | "new" { NEW }
@@ -47,11 +63,28 @@ rule token = parse
 | "null" { NULL }
 | "undefined" { UNDEFINED }
 (* operators *)
+| ["==", "is"] { OPBO_EQUAL }
+| ["!=", "isnt"] { OPBO_NOT_EQUAL }
 | ['!', "not"] { OPBO_NOT }
 | ["&&", "and"] { OPBO_AND }
 | ["||", "or"] { OPBO_OR }
-| ["==", "is"] { OPBO_EQUAL }
-| ["!=", "isnt"] { OPBO_NOT_EQUAL }
+| "->" { OPF_THIN_ROCKET }
+| "=>" { OPF_FAT_ROCKET }
+| "|=" { OPAS_ASSING_OR }
+| "&=" { OPAS_ASSING_AND }
+| "?=" { OPAS_ASSING_IF }
+| "+=" { OPAS_ASSING_PLUS }
+| "-=" { OPAS_ASSING_MINUS }
+| "*=" { OPAS_ASSING_MULTIPLY }
+| "/=" { OPAS_ASSING_DIVIDE }
+| "^=" { OPAS_ASSING_AND }
+| "&=" { OPAS_ASSING_OR }
+| ">>=" { OPAS_ASSING_SHIFTR }
+| "<<=" { OPAS_ASSING_SHIFTR }
+| "%=" { OPAS_ASSING_MODULO }
+| "**=" { OPAS_ASSING_EXPONENT }
+| "%%=" { OPAS_ASSING_MODULO_POSITIVE }
+| "//=" { OPAS_ASSSIGN_DIVIDE_INTEGER }
 | ">=" { OPBO_GREATER_EQUAL }
 | ">>" { OPBI_SHIFTR }
 | '>' { OPBO_GREATER }
@@ -68,20 +101,10 @@ rule token = parse
 | '/' { OPAR_DIVIDE }
 | "%%" { OPAR_MODULO_POSITIVE }
 | '%' { OPAR_MODULO }
-| "->" { OPF_THIN_ROCKET }
-| "=>" { OPF_FAT_ROCKET }
-| "|=" { OPAS_ASSING_OR }
-| "&=" { OPAS_ASSING_AND }
-| "?=" { OPAS_ASSING_IF }
-| "+=" { OPAS_ASSING_PLUS }
-| "-=" { OPAS_ASSING_MINUS }
-| "*=" { OPAS_ASSING_MULTIPLY }
-| "/=" { OPAS_ASSING_DIVIDE }
-| "%=" { OPAS_ASSING_MODULO }
-| "**=" { OPAS_ASSING_EXPONENT }
-| "%%=" { OPAS_ASSING_MODULO_POSITIVE }
-| "//=" { OPAS_ASSSIGN_DIVIDE_INTEGER }
 | "?" { OP_EXISTS }
+
+and strict_stringify buff = parse
+| t_escape as value
 
 {
   (* trailer *)

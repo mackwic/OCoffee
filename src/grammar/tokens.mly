@@ -9,12 +9,9 @@
 %token <float>  FLOAT
 %token <string> STRING
 %token <string> ID
-%token <string> AT_ID (* @prop *)
 %token <string> REGEXP
 
 (* 2. primitive values *)
-%token TRUE
-%token FALSE
 %token NULL
 %token UNDEFINED
 
@@ -59,6 +56,8 @@
 %token OPAS_ASSING_MODULO
 %token OPAS_ASSING_MODULO_POSITIVE
 %token OPAS_ASSING_EXPONENT
+%token OPAS_ASSING_AND_BIN
+%token OPAS_ASSING_OR_BIN
 (* 3.6 exist  *)
 %token OP_EXISTS (* ? *)
 %token <string> OP_EXIST_FIELD (* a.b? *)
@@ -112,6 +111,7 @@
 
 (* 8. other tokens *)
 %token THIS
+%token AT
 %token NEW
 %token DOT
 %token DOUBLE_DOT (* .. as in [2..5] *)
