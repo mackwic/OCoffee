@@ -13,14 +13,14 @@ let idents = [
   "ocamlCase"; "PascalCase"; "snake_case";
   "int"; "t_uint"; "uint_t"; "string";
   "t_uint32"; "t_uin64"; "_4343434";
-  "$a"; "$a$"; "$$$a";
+  "$"; "$a"; "$a$"; "$$$a";
   "£a"; "€a"; 
   "éternel"; "café"; "Ümlaüt_äre_über_cööl"; "cõmpilãziõne"
 ]
 
 (* FIXME *)
 let failing = [
-  "$";
+  (* nothing fail... for now *)
 ]
 
 let suite = "Idents suite" >::: List.map (fun str ->

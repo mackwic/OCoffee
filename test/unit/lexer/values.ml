@@ -41,7 +41,7 @@ let suite = "Values testing" >::: List.map (fun (input, expected) ->
   "Values test [" ^ input ^ "]" >:: fun _ ->
     let token = tokenize input in
     assert_equal expected token ~msg:(
-      "Expected " ^ (string_of_value_token expected) ^ " but got " ^
-      string_of_value_token token
+      "Expected " ^ (PrintTokens.string_of_token expected) ^ " but got " ^
+      PrintTokens.string_of_token token
     )
 ) values

@@ -8,8 +8,7 @@
 
   let reset =
     indent_width := None;
-    base_indent := 0;
-    true
+    base_indent := 0
 
   let whitespace lexbuf continue_f =
     let pos = Lexing.lexeme_start_p lexbuf in
@@ -66,7 +65,6 @@ rule tokenize = parse
 | eof { EOF }
 | t_float as value { FLOAT(float_of_string value) }
 | t_int as value { INT(int_of_string value) }
-| t_bool as value { BOOL(bool_of_string value) }
 | t_white+ { whitespace lexbuf tokenize }
 (* punctuation *)
 | ';' { SEMICOLON}
