@@ -32,11 +32,7 @@ let words = [
   ("#! /bin/bash", "! /bin/bash")
 ]
 
-let count = ref 0
-
 let suite = "Comment testing" >::: List.map (fun (input, str_expected) ->
-  incr count;
-  let count = string_of_int !count in
   "Comment test [" ^ input ^ "]" >:: fun _ ->
     contains_comment str_expected (Lexing.from_string input)
 ) words

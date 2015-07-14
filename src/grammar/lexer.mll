@@ -35,7 +35,13 @@ let t_white   = ['\t' ' ']
 let t_eol     = '\n'|'\r'|"\r\n"
 let t_digit   = ['0'-'9']
 let t_int     = '-'?t_digit+
-let t_float   = '-'?t_digit+'.'t_digit+
+let t_float_mantiss = '-'?t_digit+
+let t_float_decimal = '.'t_digit+
+let t_float_exponent = 'e't_digit+
+let t_float   = "NaN"|('-'?"Infinity")|(t_float_mantiss? t_float_decimal)|
+  (t_float_mantiss t_float_decimal t_float_exponent?)|
+  (t_float_mantiss t_float_exponent)|
+  (t_float_decimal t_float_exponent)
 let t_bool    = ("true"|"false")
 let t_escape  =  '\\' ['b' 't' 'n' 'f' 'r' '"' '/' '\\']
 let t_alpha   = ['A'-'Z' 'a'-'z']
@@ -53,8 +59,8 @@ let t_ident   = ('_'|t_alpha|t_symbols|t_accents)('_'|t_alphanum|t_symbols)*
 
 rule tokenize = parse
 | eof { EOF }
-| t_int as value { INT(int_of_string value) }
 | t_float as value { FLOAT(float_of_string value) }
+| t_int as value { INT(int_of_string value) }
 | t_bool as value { BOOL(bool_of_string value) }
 | t_white+ { whitespace lexbuf tokenize }
 (* punctuation *)

@@ -5,6 +5,7 @@ let _ =
   let suites = "OCoffe Lexer Suite" >::: [
     Terminals.suite;
     Idents.suite;
-    Comments.suite
+    Comments.suite;
+    Values.suite
   ] in
   run_test_tt_main suites
