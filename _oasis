@@ -5,6 +5,7 @@ Synopsis:    A modern compiler for coffee-script
 Authors:     Thomas 'mackwic' Wickham
 License:     GPL-3
 Plugins:     StdFiles (0.4), DevFiles (0.4)
+BuildTools:  ocamlbuild, ocamllex, menhir
 
 SourceRepository git
   Type:     git
@@ -14,4 +15,8 @@ Executable ocoffee
   Path:       src/
   BuildTools: ocamlbuild
   MainIs:     main.ml
-  
+
+Library lexer
+  Path: src/grammar/
+  Modules: Lexer
+

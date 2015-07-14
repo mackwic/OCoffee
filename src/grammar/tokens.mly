@@ -7,9 +7,8 @@
 %token <bool>   BOOL
 %token <int>    INT
 %token <float>  FLOAT
-%token <string> STRING
 %token <string> ID
-%token <string> REGEXP
+%token <string> COMMENT
 
 (* 2. primitive values *)
 %token NULL
@@ -35,7 +34,7 @@
 %token OPAR_PLUS
 %token OPAR_MINUS  (* don't forget the unary minus !*)
 %token OPAR_MULTIPLY
-%token OPAR_DIVIDE
+%token OPAR_SLASH (* ACHTUNG ! Can also be a Regexp opener *)
 %token OPAR_DIVIDE_INTERGER (* 3 // 2 is 1 *)
 %token OPAR_MODULO (* standard modulo *)
 %token OPAR_EXPONENT (* 2 ** 3 is 2 ^ 3*)
@@ -44,20 +43,22 @@
 %token OPF_THIN_ROCKET (* -> *)
 %token OPF_FAT_ROCKET  (* => *)
 (* 3.5 assignment *)
-%token OPAS_ASSING     (* =  *)
-%token OPAS_ASSING_OR  (* |= *)
-%token OPAS_ASSING_AND (* &= *)
-%token OPAS_ASSING_IF  (* ?= *)
-%token OPAS_ASSING_PLUS (* += *)
-%token OPAS_ASSING_MINUS (* -= *)
-%token OPAS_ASSING_MULTIPLY
-%token OPAS_ASSING_DIVIDE
-%token OPAS_ASSING_DIVIDE_INTEGER
-%token OPAS_ASSING_MODULO
-%token OPAS_ASSING_MODULO_POSITIVE
-%token OPAS_ASSING_EXPONENT
-%token OPAS_ASSING_AND_BIN
-%token OPAS_ASSING_OR_BIN
+%token OPAS_ASSIGN     (* =  *)
+%token OPAS_ASSIGN_OR  (* |= *)
+%token OPAS_ASSIGN_AND (* &= *)
+%token OPAS_ASSIGN_IF  (* ?= *)
+%token OPAS_ASSIGN_PLUS (* += *)
+%token OPAS_ASSIGN_MINUS (* -= *)
+%token OPAS_ASSIGN_MULTIPLY
+%token OPAS_ASSIGN_DIVIDE
+%token OPAS_ASSIGN_DIVIDE_INTEGER
+%token OPAS_ASSIGN_MODULO
+%token OPAS_ASSIGN_MODULO_POSITIVE
+%token OPAS_ASSIGN_EXPONENT
+%token OPAS_ASSIGN_AND_BIN
+%token OPAS_ASSIGN_OR_BIN
+%token OPAS_ASSIGN_SHIFTR
+%token OPAS_ASSIGN_SHIFTL
 (* 3.6 exist  *)
 %token OP_EXISTS (* ? *)
 %token <string> OP_EXIST_FIELD (* a.b? *)
@@ -85,7 +86,6 @@
 %token START_STRING
 %token END_STRING
 %token START_INTERPOLATE
-%token END_INTERPOLATE
 %token START_EMBED_JS
 %token END_EMBED_JS
 %token START_BLOCK_STRING
@@ -124,5 +124,16 @@
 %token SEMICOLON
 %token COLON
 %token COMMA
+%token SIMPLE_QUOTE
+%token DOUBLE_QUOTE
+%token TRIPLE_SIMPLE_QUOTE
+%token TRIPLE_DOUBLE_QUOTE
+%token TRIPLE_HASH
 %token EOF
+
+%start <int> program
+
+%%
+
+program: EOF {1 }
 

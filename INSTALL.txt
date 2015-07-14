@@ -1,5 +1,5 @@
 (* OASIS_START *)
-(* DO NOT EDIT (digest: b41779740d1df2d18f4fa98c6db87bca) *)
+(* DO NOT EDIT (digest: a851c817561e417408d641f644977494) *)
 
 This is the INSTALL file for the OCoffee distribution.
 
@@ -12,6 +12,7 @@ Dependencies
 In order to compile this package, you will need:
                                                 * ocaml
                                                 * findlib
+                                                * menhir
 
 Installing
 ==========

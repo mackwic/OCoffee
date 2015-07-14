@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: e5a9506255107c6445cf4fbd5b807190)
+# DO NOT EDIT (digest: 5e7d871f859a0d3731e98ef42a53dcdb)
 # Ignore VCS directories, you can use the same kind of rule outside
 # OASIS_START/STOP if you want to exclude directories that contains
 # useless stuff for the build process
@@ -15,4 +15,7 @@ true: annot, bin_annot
 "_darcs": -traverse
 "_darcs": not_hygienic
 # Executable ocoffee
+# Library lexer
+"src/grammar/lexer.cmxs": use_lexer
 # OASIS_STOP
+true: use_menhir
