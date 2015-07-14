@@ -6,7 +6,7 @@
   let indent_width = ref None
   let base_indent = ref 0
 
-  let whitespace lexbuf continue_f indent_token dedent_token =
+  let whitespace lexbuf continue_f =
     let pos = Lexing.lexeme_start_p lexbuf in
     (* find the column of the start of lexeme. If 0, we got indentation, else 
       * we treat it just as a separator *)
@@ -26,8 +26,8 @@
         match diff_indent with
         (* no indentation difference, carry on *)
         | 0 -> continue_f lexbuf
-        | 1 -> incr base_indent; indent_token
-        | -1 -> decr base_indent; dedent_token (* FIXME assert base_indent > 0 *)
+        | 1 -> incr base_indent; INDENT
+        | -1 -> decr base_indent; DEDENT (* FIXME assert base_indent > 0 *)
         | _ -> failwith "syntax error: indent error" (* FIXME better error *)
 }
 
@@ -43,12 +43,12 @@ let t_alphanum= t_alpha | t_digit
 let t_unicode = "\\u" t_alphanum t_alphanum t_alphanum t_alphanum
 let t_ident   = ('_'|t_alpha)('_'|t_alphanum)
 
-rule token = parse
+rule tokenize = parse
 | eof { EOF }
 | t_int as value { INT(int_of_string value) }
 | t_float as value { FLOAT(float_of_string value) }
 | t_bool as value { BOOL(bool_of_string value) }
-| ' '+ { whitespace lexbuf token INDENT DEDENT}
+| ' '+ { whitespace lexbuf tokenize }
 (* punctuation *)
 | ';' { SEMICOLON}
 | "::" { DOUBLE_COMMA }
@@ -137,7 +137,7 @@ rule token = parse
 | '"' { DOUBLE_QUOTE }
 | "#{" { START_INTERPOLATE }
 | '#' { commentify (Buffer.create 20) lexbuf }
-| t_eol+ { token lexbuf }
+| t_eol+ { tokenize lexbuf }
 | t_ident as value { ID(value) }
 
 and commentify buff = parse
