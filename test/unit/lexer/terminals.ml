@@ -1,3 +1,4 @@
+open Common
 open OUnit2
 open Tokens
 
@@ -98,7 +99,7 @@ let keywords = [
 let keywords_suite =
   "Keywords Suite" >::: List.map (fun (input, expected) ->
     ("Test input: [" ^ input ^ "]") >:: (fun _ -> 
-      assert_equal expected (Lexer.tokenize (Lexing.from_string input))
+      assert_equal expected (tokenize input)
     )
   ) keywords
 

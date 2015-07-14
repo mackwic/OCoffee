@@ -39,9 +39,17 @@ let t_float   = '-'?t_digit+'.'t_digit+
 let t_bool    = ("true"|"false")
 let t_escape  =  '\\' ['b' 't' 'n' 'f' 'r' '"' '/' '\\']
 let t_alpha   = ['A'-'Z' 'a'-'z']
-let t_alphanum= t_alpha | t_digit
+let t_accents =
+  "à"|"á"|"â"|"ã"|"ä"|"è"|"é"|"ê"|"ë"|"ì"|"í"|"î"|"ï"|"ò"|"ó"|"ô"|"õ"|"ö"|"ù"|
+  "ú"|"û"|"ü"|"ÿ"|"æ"|"Æ"|
+  "À"|"Á"|"Â"|"Ã"|"Ä"|"È"|"É"|"Ê"|"Ë"|"Ì"|"Í"|"Î"|"Ï"|"Ò"|"Ó"|"Ô"|"Õ"|"Ö"|"Ù"|
+  "Ú"|"Û"|"Ü"|"Ÿ"
+let t_symbols =
+  "$"|"£"|"€"|"¡"|"™"|"£"|"¢"|"∞"|"§"|"¶"|"•"|"ª"|"º"|"–"|"≠"|"“"|"‘"|"”"|"’"
+  
+let t_alphanum= t_alpha | t_digit | t_accents
 let t_unicode = "\\u" t_alphanum t_alphanum t_alphanum t_alphanum
-let t_ident   = ('_'|t_alpha)('_'|t_alphanum)
+let t_ident   = ('_'|t_alpha|t_symbols|t_accents)('_'|t_alphanum|t_symbols)*
 
 rule tokenize = parse
 | eof { EOF }
