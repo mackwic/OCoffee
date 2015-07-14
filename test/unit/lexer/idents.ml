@@ -4,8 +4,7 @@ open Tokens
 
 let ident_cmp str_expected token =
   match token with
-  | ID(value) -> assert_equal str_expected value ~msg:("Expected " ^ value ^ 
-    "to be " ^ str_expected)
+  | ID(value) -> assert_same_str str_expected value
   | _ -> assert_failure "Not lexed as an ID token"
 
 let idents = [
@@ -16,8 +15,7 @@ let idents = [
   "t_uint32"; "t_uin64"; "_4343434";
   "$a"; "$a$"; "$$$a";
   "£a"; "€a"; 
-  "éternel"; "café"; "Ümlaüt_äre_über_cööl"; "cõmpilãziõne";
-  "_éternel"; "_Ümlaüt_äre_über_cööl"
+  "éternel"; "café"; "Ümlaüt_äre_über_cööl"; "cõmpilãziõne"
 ]
 
 (* FIXME *)

@@ -56,7 +56,7 @@ rule tokenize = parse
 | t_int as value { INT(int_of_string value) }
 | t_float as value { FLOAT(float_of_string value) }
 | t_bool as value { BOOL(bool_of_string value) }
-| ' '+ { whitespace lexbuf tokenize }
+| t_white+ { whitespace lexbuf tokenize }
 (* punctuation *)
 | ';' { SEMICOLON}
 | "::" { DOUBLE_COMMA }
@@ -150,7 +150,7 @@ rule tokenize = parse
 
 and commentify buff = parse
 | t_eol { COMMENT (Buffer.contents buff) }
-| eof { EOF } (* FIXME don't discard the comment if it's the last line *)
+| eof { COMMENT (Buffer.contents buff) }
 | _ as c { Buffer.add_char buff c; commentify buff lexbuf }
 
 (*
