@@ -6,6 +6,11 @@
   let indent_width = ref None
   let base_indent = ref 0
 
+  let reset =
+    indent_width := None;
+    base_indent := 0;
+    true
+
   let whitespace lexbuf continue_f =
     let pos = Lexing.lexeme_start_p lexbuf in
     (* find the column of the start of lexeme. If 0, we got indentation, else 
@@ -22,7 +27,7 @@
       in
         (*if input_width mod ref_width <> 0
         then (* FIXME error *) *)
-        let diff_indent = (!base_indent) - (input_width / ref_width) in
+        let diff_indent = (input_width / ref_width) - !base_indent in
         match diff_indent with
         (* no indentation difference, carry on *)
         | 0 -> continue_f lexbuf

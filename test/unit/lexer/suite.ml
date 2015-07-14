@@ -6,6 +6,7 @@ let _ =
     Terminals.suite;
     Idents.suite;
     Comments.suite;
-    Values.suite
+    Values.suite;
+    Whitespaces.suite
   ] in
   run_test_tt_main suites
