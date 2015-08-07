@@ -10,9 +10,14 @@ BuildTools:  ocamlbuild, ocamllex, menhir
 SourceRepository git
   Type:     git
   Location: git://git@github.com:mackwic/OCoffee.git
+
+Library log
+  Path: src/log/
+  Modules: Log
   
 Executable ocoffee
   Path:       src/
+  BuildDepends: log
   MainIs:     main.ml
 
 Library tokens
@@ -21,7 +26,7 @@ Library tokens
 
 Library lexer
   Path: src/grammar/
-  BuildDepends: tokens
+  BuildDepends: tokens, log
   Modules: Lexer
 
 Library ast
