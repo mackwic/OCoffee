@@ -24,6 +24,11 @@ Library lexer
   BuildDepends: tokens
   Modules: Lexer
 
+Library ast
+  Path: src/grammar/
+  BuildDepends: tokens
+  Modules: Ast
+
 Executable lexer_test
   Build$: flag(tests)
   BuildDepends: oUnit (>= 2.0), tokens, lexer

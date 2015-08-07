@@ -154,11 +154,11 @@ rule tokenize = parse
 | '"' { DOUBLE_QUOTE }
 | "#{" { START_INTERPOLATE }
 | '#' { commentify (Buffer.create 20) lexbuf }
-| t_eol+ { tokenize lexbuf }
+| t_eol { Lexing.new_line lexbuf; tokenize lexbuf }
 | t_ident as value { ID(value) }
 
 and commentify buff = parse
-| t_eol { COMMENT (Buffer.contents buff) }
+| t_eol { Lexing.new_line lexbuf; COMMENT (Buffer.contents buff) }
 | eof { COMMENT (Buffer.contents buff) }
 | _ as c { Buffer.add_char buff c; commentify buff lexbuf }
 
