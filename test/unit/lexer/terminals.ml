@@ -1,4 +1,4 @@
-open Common
+open CommonLexerTest
 open OUnit2
 open Tokens
 
@@ -93,7 +93,19 @@ let keywords = [
   ("###", TRIPLE_HASH);
   ("\"", DOUBLE_QUOTE);
   ("'", SIMPLE_QUOTE);
-  ("#{", START_INTERPOLATE)
+  ("#{", START_INTERPOLATE);
+  (* check that line return are ignored correctly  *)
+  ("\n+", OPAR_PLUS);
+  ("\n-", OPAR_MINUS);
+  ("\n?", OP_EXISTS);
+  ("\n%%", OPAR_MODULO_POSITIVE);
+  ("\n@", AT);
+  ("\n\n+", OPAR_PLUS);
+  ("\n\n\n\n\n-", OPAR_MINUS);
+  ("\r?", OP_EXISTS);
+  ("\r\r\r%%", OPAR_MODULO_POSITIVE);
+  ("\r\n@", AT);
+  ("\r\n\r\n\r\n\r\n@", AT);
 ]
 
 let keywords_suite =

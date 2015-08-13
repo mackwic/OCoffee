@@ -3,15 +3,27 @@
   open Lexing
   open Tokens
 
+  let log = new LogO.logger __MODULE__
+
   let indent_width = ref None
   let base_indent = ref 0
 
   let reset =
     indent_width := None;
-    base_indent := 0
+    base_indent := 0;
+    log#info __POS__ "Lexer reset"
+
+  let emit_log pos str =
+    if true
+    then log#silly pos ("Emit " ^ str)
+  let emit pos tok =
+    emit_log pos (PrintTokens.string_of_token tok);
+    tok
 
   let whitespace lexbuf continue_f =
     let pos = Lexing.lexeme_start_p lexbuf in
+    (log#debug  __POS__ ("pos.pos_cnum=" ^ string_of_int
+    pos.pos_cnum ^ ", pos.pos_bol=" ^ string_of_int pos.pos_bol));
     (* find the column of the start of lexeme. If 0, we got indentation, else 
       * we treat it just as a separator *)
     if (pos.pos_cnum - pos.pos_bol) <> 0 then continue_f lexbuf
@@ -19,14 +31,17 @@
       let input_width =
         (Lexing.lexeme_end lexbuf) - (Lexing.lexeme_start lexbuf)
       in
+      (log#debug  __POS__ ("input width = " ^ string_of_int input_width));
       let ref_width = match !indent_width with
         (* first indentation will set the indent width *)
         | None -> indent_width := Some(input_width); input_width
         | Some(width) -> width
       in
+        (log#debug  __POS__ ("ref_width = " ^ string_of_int ref_width));
         (*if input_width mod ref_width <> 0
         then (* FIXME error *) *)
         let diff_indent = (input_width / ref_width) - !base_indent in
+        (log#debug  __POS__ ("diff_indent = " ^ string_of_int diff_indent));
         match diff_indent with
         (* no indentation difference, carry on *)
         | 0 -> continue_f lexbuf
@@ -62,100 +77,100 @@ let t_unicode = "\\u" t_alphanum t_alphanum t_alphanum t_alphanum
 let t_ident   = ('_'|t_alpha|t_symbols|t_accents)('_'|t_alphanum|t_symbols)*
 
 rule tokenize = parse
-| eof { EOF }
-| t_float as value { FLOAT(float_of_string value) }
-| t_int as value { INT(int_of_string value) }
-| t_white+ { whitespace lexbuf tokenize }
+| eof { emit __POS__ EOF }
+| t_float as value { emit __POS__ (FLOAT(float_of_string value)) }
+| t_int as value { emit __POS__ (INT(int_of_string value)) }
+| t_white+ { emit __POS__ (whitespace lexbuf tokenize) }
 (* punctuation *)
-| ';' { SEMICOLON}
-| "::" { DOUBLE_COMMA }
-| ':' { COMMA }
-| "..." { TRIPLE_DOT }
-| ".." { DOUBLE_DOT }
-| '.' { DOT }
-| '{' { L_BRACE }
-| '}' { R_BRACE }
-| '[' { L_BRACK }
-| ']' { R_BRACK }
-| '@' { AT }
+| ';' { emit __POS__ SEMICOLON}
+| "::" { emit __POS__ DOUBLE_COMMA }
+| ':' { emit __POS__ COMMA }
+| "..." { emit __POS__ TRIPLE_DOT }
+| ".." { emit __POS__ DOUBLE_DOT }
+| '.' { emit __POS__ DOT }
+| '{' { emit __POS__ L_BRACE }
+| '}' { emit __POS__ R_BRACE }
+| '[' { emit __POS__ L_BRACK }
+| ']' { emit __POS__ R_BRACK }
+| '@' { emit __POS__ AT }
 (* keywords *)
-| "yield" { YIELD }
-| "new" { NEW }
-| "this" { THIS }
-| "try" { TRY }
-| "catch" { CATCH }
-| "finally" { FINALLY }
-| "class" { CLASS }
-| "extends" { EXTENDS }
-| "super" { SUPER }
-| "if" { IF }
-| "unless" { UNLESS }
-| "then" { THEN }
-| "else" { ELSE }
-| "switch" { SWITCH }
-| "when" { WHEN }
-| "while" { WHILE }
-| "until" { UNTIL }
-| "for" { FOR }
-| "in" { FOR_IN }
-| "of" { FOR_OF }
-| "do" { FOR_DO }
-| "break" { BREAK }
-| "continue" { CONTINUE }
-| "return" { RETURN }
-| "true" { BOOL(true) }
-| "false" { BOOL(false) }
-| "null" { NULL }
-| "undefined" { UNDEFINED }
+| "yield" { emit __POS__ YIELD }
+| "new" { emit __POS__ NEW }
+| "this" { emit __POS__ THIS }
+| "try" { emit __POS__ TRY }
+| "catch" { emit __POS__ CATCH }
+| "finally" { emit __POS__ FINALLY }
+| "class" { emit __POS__ CLASS }
+| "extends" { emit __POS__ EXTENDS }
+| "super" { emit __POS__ SUPER }
+| "if" { emit __POS__ IF }
+| "unless" { emit __POS__ UNLESS }
+| "then" { emit __POS__ THEN }
+| "else" { emit __POS__ ELSE }
+| "switch" { emit __POS__ SWITCH }
+| "when" { emit __POS__ WHEN }
+| "while" { emit __POS__ WHILE }
+| "until" { emit __POS__ UNTIL }
+| "for" { emit __POS__ FOR }
+| "in" { emit __POS__ FOR_IN }
+| "of" { emit __POS__ FOR_OF }
+| "do" { emit __POS__ FOR_DO }
+| "break" { emit __POS__ BREAK }
+| "continue" { emit __POS__ CONTINUE }
+| "return" { emit __POS__ RETURN }
+| "true" { emit __POS__ (BOOL(true)) }
+| "false" { emit __POS__ (BOOL(false)) }
+| "null" { emit __POS__ NULL }
+| "undefined" { emit __POS__ UNDEFINED }
 (* operators *)
-| "=="|"is" { OPBO_EQUAL }
-| "!="|"isnt" { OPBO_NOT_EQUAL }
-| '!'|"not" { OPBO_NOT }
-| "&&"|"and" { OPBO_AND }
-| "||"|"or" { OPBO_OR }
-| "->" { OPF_THIN_ROCKET }
-| "=>" { OPF_FAT_ROCKET }
-| "||=" { OPAS_ASSIGN_OR }
-| "&&=" { OPAS_ASSIGN_AND }
-| "?=" { OPAS_ASSIGN_IF }
-| "+=" { OPAS_ASSIGN_PLUS }
-| "-=" { OPAS_ASSIGN_MINUS }
-| "*=" { OPAS_ASSIGN_MULTIPLY }
-| "/=" { OPAS_ASSIGN_DIVIDE }
-| "^=" { OPAS_ASSIGN_OR_BIN }
-| "&=" { OPAS_ASSIGN_AND_BIN }
-| ">>=" { OPAS_ASSIGN_SHIFTR }
-| "<<=" { OPAS_ASSIGN_SHIFTL }
-| "%=" { OPAS_ASSIGN_MODULO }
-| "**=" { OPAS_ASSIGN_EXPONENT }
-| "%%=" { OPAS_ASSIGN_MODULO_POSITIVE }
-| "//=" { OPAS_ASSIGN_DIVIDE_INTEGER }
-| ">=" { OPBO_GREATER_EQUAL }
-| ">>" { OPBI_SHIFTR }
-| '>' { OPBO_GREATER }
-| "<=" { OPBO_LESS_EQUAL }
-| "<<" { OPBI_SHIFTL }
-| '<' { OPBO_LESS }
-| '^' { OPBI_OR }
-| '&' { OPBI_AND }
-| '+'  { OPAR_PLUS }
-| '-' { OPAR_MINUS }
-| "**" { OPAR_EXPONENT }
-| '*' { OPAR_MULTIPLY }
-| "//" { OPAR_DIVIDE_INTERGER }
-| '/' { OPAR_SLASH } (* XXX: both arithmetic division AND regexp delimiter ! *)
-| "%%" { OPAR_MODULO_POSITIVE }
-| '%' { OPAR_MODULO }
-| '?' { OP_EXISTS }
-| "\"\"\"" { TRIPLE_DOUBLE_QUOTE } 
-| "'''" { TRIPLE_SIMPLE_QUOTE }
-| "###" { TRIPLE_HASH }
-| '\'' { SIMPLE_QUOTE }
-| '"' { DOUBLE_QUOTE }
-| "#{" { START_INTERPOLATE }
-| '#' { commentify (Buffer.create 20) lexbuf }
-| t_eol { Lexing.new_line lexbuf; tokenize lexbuf }
-| t_ident as value { ID(value) }
+| "=="|"is" { emit __POS__ OPBO_EQUAL }
+| "!="|"isnt" { emit __POS__ OPBO_NOT_EQUAL }
+| '!'|"not" { emit __POS__ OPBO_NOT }
+| "&&"|"and" { emit __POS__ OPBO_AND }
+| "||"|"or" { emit __POS__ OPBO_OR }
+| "->" { emit __POS__ OPF_THIN_ROCKET }
+| "=>" { emit __POS__ OPF_FAT_ROCKET }
+| "||=" { emit __POS__ OPAS_ASSIGN_OR }
+| "&&=" { emit __POS__ OPAS_ASSIGN_AND }
+| "?=" { emit __POS__ OPAS_ASSIGN_IF }
+| "+=" { emit __POS__ OPAS_ASSIGN_PLUS }
+| "-=" { emit __POS__ OPAS_ASSIGN_MINUS }
+| "*=" { emit __POS__ OPAS_ASSIGN_MULTIPLY }
+| "/=" { emit __POS__ OPAS_ASSIGN_DIVIDE }
+| "^=" { emit __POS__ OPAS_ASSIGN_OR_BIN }
+| "&=" { emit __POS__ OPAS_ASSIGN_AND_BIN }
+| ">>=" { emit __POS__ OPAS_ASSIGN_SHIFTR }
+| "<<=" { emit __POS__ OPAS_ASSIGN_SHIFTL }
+| "%=" { emit __POS__ OPAS_ASSIGN_MODULO }
+| "**=" { emit __POS__ OPAS_ASSIGN_EXPONENT }
+| "%%=" { emit __POS__ OPAS_ASSIGN_MODULO_POSITIVE }
+| "//=" { emit __POS__ OPAS_ASSIGN_DIVIDE_INTEGER }
+| ">=" { emit __POS__ OPBO_GREATER_EQUAL }
+| ">>" { emit __POS__ OPBI_SHIFTR }
+| '>' { emit __POS__ OPBO_GREATER }
+| "<=" { emit __POS__ OPBO_LESS_EQUAL }
+| "<<" { emit __POS__ OPBI_SHIFTL }
+| '<' { emit __POS__ OPBO_LESS }
+| '^' { emit __POS__ OPBI_OR }
+| '&' { emit __POS__ OPBI_AND }
+| '+'  { emit __POS__ OPAR_PLUS }
+| '-' { emit __POS__ OPAR_MINUS }
+| "**" { emit __POS__ OPAR_EXPONENT }
+| '*' { emit __POS__ OPAR_MULTIPLY }
+| "//" { emit __POS__ OPAR_DIVIDE_INTERGER }
+| '/' { emit __POS__ OPAR_SLASH } (* XXX: both arithmetic division AND regexp delimiter ! *)
+| "%%" { emit __POS__ OPAR_MODULO_POSITIVE }
+| '%' { emit __POS__ OPAR_MODULO }
+| '?' { emit __POS__ OP_EXISTS }
+| "\"\"\"" { emit __POS__ TRIPLE_DOUBLE_QUOTE } 
+| "'''" { emit __POS__ TRIPLE_SIMPLE_QUOTE }
+| "###" { emit __POS__ TRIPLE_HASH }
+| '\'' { emit __POS__ SIMPLE_QUOTE }
+| '"' { emit __POS__ DOUBLE_QUOTE }
+| "#{" { emit __POS__ START_INTERPOLATE }
+| '#' { emit __POS__ (commentify (Buffer.create 20) lexbuf) }
+| t_eol { emit_log __POS__ "newline"; Lexing.new_line lexbuf; tokenize lexbuf }
+| t_ident as value { emit __POS__ (ID(value)) }
 
 and commentify buff = parse
 | t_eol { Lexing.new_line lexbuf; COMMENT (Buffer.contents buff) }

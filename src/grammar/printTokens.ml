@@ -6,6 +6,7 @@ let maybe_escape_char formatter ch =
   | '"'  -> Format.pp_print_string formatter "\\\""
   | '\\' -> Format.pp_print_string formatter "\\\\"
   | '\n' -> Format.pp_print_string formatter "\\n"
+  | '\r' -> Format.pp_print_string formatter "\\r"
   | '\t' -> Format.pp_print_string formatter "\\t"
   | _    ->
     let code = Char.code ch in
@@ -145,6 +146,10 @@ let pp_print_token formatter = function
 
 let string_of_token token =
   let buff = Buffer.create 20 in
-    pp_print_token (Format.formatter_of_buffer buff) token;
+  let formatter = Format.formatter_of_buffer buff in
+    Format.pp_open_box formatter 0;
+    pp_print_token formatter token;
+    Format.pp_close_box formatter ();
+    Format.pp_print_flush formatter ();
     Buffer.contents buff
 

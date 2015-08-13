@@ -5,6 +5,7 @@ let _ =
   let suites = "OCoffe Lexer Suite" >::: [
     Terminals.suite;
     Idents.suite;
+    Printer.suite;
     Comments.suite;
     Values.suite;
     Whitespaces.suite

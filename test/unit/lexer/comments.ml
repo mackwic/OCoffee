@@ -1,4 +1,4 @@
-open Common
+open CommonLexerTest
 open OUnit2
 open Tokens
 

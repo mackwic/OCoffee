@@ -22,7 +22,7 @@ Executable ocoffee
 
 Library tokens
   Path: src/grammar/
-  Modules: Tokens
+  Modules: Tokens, PrintTokens
 
 Library lexer
   Path: src/grammar/
@@ -36,7 +36,7 @@ Library ast
 
 Executable lexer_test
   Build$: flag(tests)
-  BuildDepends: oUnit (>= 2.0), tokens, lexer
+  BuildDepends: oUnit (>= 2.0), tokens, lexer, log
   Install: false
   Path: test/unit/lexer
   MainIs: suite.ml
