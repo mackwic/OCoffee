@@ -27,7 +27,7 @@ Library tokens
 Library lexer
   Path: src/grammar/
   BuildDepends: tokens, log
-  Modules: Lexer
+  Modules: Lexer, LexerIndent
 
 Library ast
   Path: src/grammar/

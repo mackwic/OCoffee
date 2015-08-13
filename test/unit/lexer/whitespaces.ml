@@ -30,23 +30,23 @@ let cmp_state expected got =
 let log pos tok = l#silly pos ("got [" ^ (PrintTokens.string_of_token tok) ^ "]")
 
 let lex_input lexbuf =
-  let rec inner_state_f lexbuf aggr =
+  let rec inner_state_f aggr =
     match Lexer.tokenize lexbuf with
     | INDENT | DEDENT as value ->
         l#silly __POS__ "got [indent/dedent]";
-        inner_state_f lexbuf (value::aggr)
+        inner_state_f (value::aggr)
     | EOF ->
       l#silly __POS__ ("got eof");
       {
         sequence = List.rev aggr;
-        base_indent = !Lexer.base_indent;
-        indent_width = match !Lexer.indent_width with None -> 0 | Some(v) -> v
+        base_indent = !LexerIndent.base_indent;
+        indent_width = match !LexerIndent.indent_width with None -> 0 | Some(v) -> v
       }
     | _ as v ->
       log __POS__ v;
-      inner_state_f lexbuf aggr
+      inner_state_f aggr
   in
-  inner_state_f lexbuf []
+  inner_state_f []
 
 
 let words = [
@@ -63,8 +63,8 @@ let words = [
   ("only one indent 2", "  \n  a\n  a", make_state [INDENT]);
   ("only one indent 3", "  \n  2\n  2", make_state [INDENT]);
   ("only one indent 4", "  1\n  2\n  3\n", make_state [INDENT]);
-  ("indent then dedent 1", "@;  :\n<>", make_state [INDENT; DEDENT]);
-  ("increasing indentation 1", "  \na  \nb    a", make_state [INDENT; INDENT]);
+  ("indent then dedent 1", "  :\n0", make_state [INDENT; DEDENT]);
+  ("increasing indentation 1", "  a\n  b\n   a", make_state [INDENT; INDENT]);
 ]
 
 let suite = "Whitespaces testing" >::: List.map (fun (test_name, input, expected) ->
