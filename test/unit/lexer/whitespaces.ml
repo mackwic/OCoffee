@@ -50,20 +50,22 @@ let lex_input lexbuf =
 
 
 let words = [
-  ("  ", make_state [INDENT]);
-  ("  ", make_state [INDENT]);
-  ("  ", make_state [INDENT]);
-  ("  ", make_state [INDENT]);
-  ("  ", make_state [INDENT]);
-  ("  ", make_state ~base_indent:1 [INDENT]);
-  (*("  ", make_state ~indent_width:2 [INDENT]);*)
-  ("  \na  \nb    \na  ", make_state [INDENT; INDENT; DEDENT]);
+  ("base test 1", "  ", make_state [INDENT]);
+  ("base test (purity) 1", "  ", make_state [INDENT]);
+  ("base test (purity) 2", "  ", make_state [INDENT]);
+  ("check other state variables 1", "  ", make_state ~base_indent:1 [INDENT]);
+  ("check other state variables 2", "",
+    make_state ~base_indent:0 ~indent_width:0 []);
+  ("check other state variables 3", "  ", make_state ~indent_width:2 [INDENT]);
+  ("check other state variables 4", "   ", make_state ~indent_width:3 [INDENT]);
+  ("check other state variables 5", "    ", make_state ~indent_width:4 [INDENT]);
+  ("only one indent 1", "  \n  \n", make_state [INDENT]);
+  ("increasing indentation 1", "  \na  \nb    a", make_state [INDENT; INDENT]);
 ]
 
-let i = ref 0
-
-let suite = "Whitespaces testing" >::: List.map (fun (input, expected) ->
-  "Whitespace test [" ^ (incr i; string_of_int !i) ^ "]" >:: fun ctxt ->
+let suite = "Whitespaces testing" >::: List.map (fun (test_name, input, expected) ->
+  "Whitespace test [" ^ test_name ^ "]" >:: fun ctxt ->
+    l#notice __POS__ ("============== " ^ test_name ^ " ==============");
     Lexer.reset ();
     cmp_state expected (lex_input input)
 ) words
