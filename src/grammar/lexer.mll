@@ -86,8 +86,8 @@ let t_ident   = ('_'|t_alpha|t_symbols|t_accents)('_'|t_alphanum|t_symbols)*
 
 rule tokenize = parse
 | eof { emit __POS__ EOF }
-| t_float as value { emit __POS__ (FLOAT(float_of_string value)) }
-| t_int as value { emit __POS__ (INT(int_of_string value)) }
+| t_float as value { emit __POS__ (FLOAT (float_of_string value)) }
+| t_int as value { emit __POS__ (INT (int_of_string value)) }
 | t_white+ as value {
   emit_log ~show_emit:false __POS__ ("(value is '" ^ value ^ "')");
   let tok = match whitespace lexbuf with 

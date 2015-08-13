@@ -31,7 +31,7 @@ let log pos tok = l#silly pos ("got [" ^ (PrintTokens.string_of_token tok) ^ "]"
 
 let lex_input lexbuf =
   let rec inner_state_f lexbuf aggr =
-    match tokenize lexbuf with
+    match Lexer.tokenize lexbuf with
     | INDENT | DEDENT as value ->
         l#silly __POS__ "got [indent/dedent]";
         inner_state_f lexbuf (value::aggr)
@@ -60,6 +60,10 @@ let words = [
   ("check other state variables 4", "   ", make_state ~indent_width:3 [INDENT]);
   ("check other state variables 5", "    ", make_state ~indent_width:4 [INDENT]);
   ("only one indent 1", "  \n  \n", make_state [INDENT]);
+  ("only one indent 2", "  \n  a\n  a", make_state [INDENT]);
+  ("only one indent 3", "  \n  2\n  2", make_state [INDENT]);
+  ("only one indent 4", "  1\n  2\n  3\n", make_state [INDENT]);
+  ("indent then dedent 1", "@;  :\n<>", make_state [INDENT; DEDENT]);
   ("increasing indentation 1", "  \na  \nb    a", make_state [INDENT; INDENT]);
 ]
 
@@ -67,5 +71,5 @@ let suite = "Whitespaces testing" >::: List.map (fun (test_name, input, expected
   "Whitespace test [" ^ test_name ^ "]" >:: fun ctxt ->
     l#notice __POS__ ("============== " ^ test_name ^ " ==============");
     Lexer.reset ();
-    cmp_state expected (lex_input input)
+    cmp_state expected (lex_input (Lexing.from_string input))
 ) words
