@@ -51,15 +51,19 @@ let lex_input lexbuf =
 
 let words = [
   ("  ", make_state [INDENT]);
-  (*("  ", make_state ~base_indent:1 [INDENT]);
-  ("  ", make_state ~indent_width:2 [INDENT]);*)
-  (*("  \na  \nb    \na  ", make_state [INDENT; INDENT; DEDENT]); *)
+  ("  ", make_state [INDENT]);
+  ("  ", make_state [INDENT]);
+  ("  ", make_state [INDENT]);
+  ("  ", make_state [INDENT]);
+  ("  ", make_state ~base_indent:1 [INDENT]);
+  (*("  ", make_state ~indent_width:2 [INDENT]);*)
+  ("  \na  \nb    \na  ", make_state [INDENT; INDENT; DEDENT]);
 ]
 
 let i = ref 0
 
 let suite = "Whitespaces testing" >::: List.map (fun (input, expected) ->
   "Whitespace test [" ^ (incr i; string_of_int !i) ^ "]" >:: fun ctxt ->
-    Lexer.reset;
+    Lexer.reset ();
     cmp_state expected (lex_input input)
 ) words

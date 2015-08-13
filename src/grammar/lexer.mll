@@ -8,26 +8,32 @@
   let indent_width = ref None
   let base_indent = ref 0
 
-  let reset =
+  let reset () =
     indent_width := None;
     base_indent := 0;
-    log#info __POS__ "Lexer reset"
+    log#notice __POS__ "Lexer reset"
 
-  let emit_log pos str =
+  let emit_log ?(show_emit = true) pos str =
     if true
-    then log#silly pos ("Emit " ^ str)
+    then log#info pos ((if show_emit then "Emit " else "") ^ str)
   let emit pos tok =
     emit_log pos (PrintTokens.string_of_token tok);
     tok
 
-  let whitespace lexbuf continue_f =
+  type whitespace_result = W_INDENT | W_DEDENT | W_SAMEDENT | W_NOTINDENT
+
+  let whitespace lexbuf =
     let pos = Lexing.lexeme_start_p lexbuf in
     (log#debug  __POS__ ("pos.pos_cnum=" ^ string_of_int
     pos.pos_cnum ^ ", pos.pos_bol=" ^ string_of_int pos.pos_bol));
     (* find the column of the start of lexeme. If 0, we got indentation, else 
       * we treat it just as a separator *)
-    if (pos.pos_cnum - pos.pos_bol) <> 0 then continue_f lexbuf
+    if (pos.pos_cnum - pos.pos_bol) <> 0
+    then
+      (emit_log ~show_emit:false __POS__ "cnum - bol <> 0 => not indent, continuing";
+      W_NOTINDENT)
     else
+      (emit_log ~show_emit:false __POS__ "viable for indent";
       let input_width =
         (Lexing.lexeme_end lexbuf) - (Lexing.lexeme_start lexbuf)
       in
@@ -38,16 +44,18 @@
         | Some(width) -> width
       in
         (log#debug  __POS__ ("ref_width = " ^ string_of_int ref_width));
+        (log#debug  __POS__ ("base_indent = " ^ string_of_int !base_indent));
         (*if input_width mod ref_width <> 0
         then (* FIXME error *) *)
         let diff_indent = (input_width / ref_width) - !base_indent in
         (log#debug  __POS__ ("diff_indent = " ^ string_of_int diff_indent));
         match diff_indent with
         (* no indentation difference, carry on *)
-        | 0 -> continue_f lexbuf
-        | 1 -> incr base_indent; INDENT
-        | -1 -> decr base_indent; DEDENT (* FIXME assert base_indent > 0 *)
+        | 0 -> W_SAMEDENT
+        | 1 -> incr base_indent; W_INDENT
+        | -1 -> decr base_indent; W_DEDENT (* FIXME assert base_indent > 0 *)
         | _ -> failwith "syntax error: indent error" (* FIXME better error *)
+      )
 }
 
 let t_white   = ['\t' ' ']
@@ -80,7 +88,23 @@ rule tokenize = parse
 | eof { emit __POS__ EOF }
 | t_float as value { emit __POS__ (FLOAT(float_of_string value)) }
 | t_int as value { emit __POS__ (INT(int_of_string value)) }
-| t_white+ { emit __POS__ (whitespace lexbuf tokenize) }
+| t_white+ as value {
+  emit_log ~show_emit:false __POS__ ("(value is '" ^ value ^ "')");
+  let tok = match whitespace lexbuf with 
+  | W_INDENT -> INDENT
+  | W_DEDENT -> DEDENT
+  | _ ->
+      emit_log __POS__ "(bubble-ing next emit)";
+      let len = String.length value in
+      tokenize {lexbuf with
+        lex_curr_pos = lexbuf.lex_curr_pos + len;
+        lex_abs_pos = lexbuf.lex_abs_pos + len;
+        lex_start_pos = lexbuf.lex_start_pos + len;
+        lex_curr_p = {lexbuf.lex_curr_p with pos_cnum = lexbuf.lex_curr_p.pos_cnum + len}
+      }
+  in
+  emit __POS__ tok
+}
 (* punctuation *)
 | ';' { emit __POS__ SEMICOLON}
 | "::" { emit __POS__ DOUBLE_COMMA }
@@ -169,7 +193,11 @@ rule tokenize = parse
 | '"' { emit __POS__ DOUBLE_QUOTE }
 | "#{" { emit __POS__ START_INTERPOLATE }
 | '#' { emit __POS__ (commentify (Buffer.create 20) lexbuf) }
-| t_eol { emit_log __POS__ "newline"; Lexing.new_line lexbuf; tokenize lexbuf }
+| t_eol {
+  emit_log __POS__ "newline (bubble-ing next emit)";
+  Lexing.new_line lexbuf;
+  tokenize lexbuf
+}
 | t_ident as value { emit __POS__ (ID(value)) }
 
 and commentify buff = parse

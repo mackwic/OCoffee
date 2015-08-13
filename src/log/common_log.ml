@@ -18,7 +18,7 @@ and logger_t = {
 let level_meta = [
   (Silly,   (" silly ", "magenta"));
   (Debug,   (" debug ", "cyan"));
-  (Notice,  (" notice", "white"));
+  (Notice,  ("notice ", "yellow"));
   (Info,    (" info  ", "green"));
   (Warning, ("warning", "yellow"));
   (Error,   (" error ", "red"))
